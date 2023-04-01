@@ -1,0 +1,27 @@
+{
+  "name": "snft",
+  "version": "1.0.0",
+  "description": "Staked NFT",
+  "main": "scripts/deploy.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gustbel/sNFT.git"
+  },
+  "author": "Gustavo Belbruno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gustbel/sNFT/issues"
+  },
+  "homepage": "https://github.com/Gustbel/sNFT#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "hardhat": "^2.13.0",
+    "typescript": "^5.0.3"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.2"
+  }
+}
