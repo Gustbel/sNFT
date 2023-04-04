@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./lib/ERC721Enumerable.sol";
 
 contract sNFT is ERC721Enumerable, Ownable {
-    uint256 public maxSupply = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+    uint256 public maxSupply = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;  // Infinite Supply
     
     // Price
     uint256 public price;
@@ -43,6 +43,10 @@ contract sNFT is ERC721Enumerable, Ownable {
     function burn(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to burn.");
         _burn(tokenId);
+    }
+
+    function totalSupply() public view override returns (uint256) {
+        return address(this).balance;
     }
 
     function setBaseURI(string memory baseURI_) external onlyOwner() {
