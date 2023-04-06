@@ -22,10 +22,12 @@ describe(`Deploy sNFT contract`, () => {
 			sNFT = await SNFT.deploy();
 		});
 		it(`Should Alice Mint ${mint_amount_alice} sNFT`, async () => {
-			await sNFT.connect(alice).mint( 1, { value: ethers.utils.parseEther(`${mint_amount_alice * sNFT_initialPrice}`) } );
+			await sNFT.connect(alice).mint( mint_amount_alice, { value: ethers.utils.parseEther(`${mint_amount_alice * sNFT_initialPrice}`) } );
+			expect(await sNFT.activeAmount()).to.equal(mint_amount_alice);
 		});
 		it(`Should BOB Mint ${mint_amount_bob} sNFT`, async () => {
-			await sNFT.connect(alice).mint( 20, { value: ethers.utils.parseEther(`${mint_amount_bob * sNFT_initialPrice}`) } );
+			await sNFT.connect(alice).mint( mint_amount_bob, { value: ethers.utils.parseEther(`${mint_amount_bob * sNFT_initialPrice}`) } );
+			expect(await sNFT.activeAmount()).to.equal(mint_amount_alice+mint_amount_bob);
 		});
 		it(`Should totalSupply() be equal to the ingresed Ether value`, async () => {
 			let totalSupply = await sNFT.totalSupply();
