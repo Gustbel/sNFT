@@ -16,6 +16,9 @@ contract sNFT is ERC721Enumerable, Ownable {
     // Base URI
     string private _baseURIextended;
 
+    // Amount of active sNFTs
+    uint256 public activeAmount;
+
     constructor() ERC721("Staked NFT", "sNFT") {
         price = 50000000000000000;
     }
@@ -32,6 +35,7 @@ contract sNFT is ERC721Enumerable, Ownable {
         for (uint32 i; i < count;) {
             _mint(_msgSender(), nextTokenId);
             unchecked { ++nextTokenId; ++i; }
+            activeAmount++;
         }
     }
 
@@ -47,6 +51,10 @@ contract sNFT is ERC721Enumerable, Ownable {
 
     function totalSupply() public view override returns (uint256) {
         return address(this).balance;
+    }
+
+    function actualPrice() public view returns (uint256) {
+        return price;
     }
 
     function setBaseURI(string memory baseURI_) external onlyOwner() {
