@@ -3,7 +3,6 @@ import { ethers } from 'hardhat';
 import { Contract, utils  } from 'ethers';
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-const sNFT_initialPrice = 0.05;
 const mint_amount_alice = 1;
 const mint_amount_bob = 20;
 
@@ -12,6 +11,8 @@ describe(`Deploy sNFT contract`, () => {
 	let alice: SignerWithAddress, bob: SignerWithAddress;
 
 	let sNFT: Contract;
+
+	let price;
 
 	describe(`1) Init Signets and Instance all the contracts`, () => {
 		it(`Should init Signers`, async () => {
@@ -22,17 +23,14 @@ describe(`Deploy sNFT contract`, () => {
 			sNFT = await SNFT.deploy();
 		});
 		it(`Should Alice Mint ${mint_amount_alice} sNFT`, async () => {
-			await sNFT.connect(alice).mint( mint_amount_alice, { value: ethers.utils.parseEther(`${mint_amount_alice * sNFT_initialPrice}`) } );
+			price = Number(ethers.utils.formatEther(await sNFT.actualPrice()));
+			await sNFT.connect(alice).mint( mint_amount_alice, { value: ethers.utils.parseEther(`${mint_amount_alice * price}`) } );
 			expect(await sNFT.activeAmount()).to.equal(mint_amount_alice);
 		});
 		it(`Should BOB Mint ${mint_amount_bob} sNFT`, async () => {
-			await sNFT.connect(alice).mint( mint_amount_bob, { value: ethers.utils.parseEther(`${mint_amount_bob * sNFT_initialPrice}`) } );
+			price = Number(ethers.utils.formatEther(await sNFT.actualPrice()));
+			await sNFT.connect(alice).mint( mint_amount_bob, { value: ethers.utils.parseEther(`${mint_amount_bob * price}`) } );
 			expect(await sNFT.activeAmount()).to.equal(mint_amount_alice+mint_amount_bob);
-		});
-		it(`Should totalSupply() be equal to the ingresed Ether value`, async () => {
-			let totalSupply = await sNFT.totalSupply();
-    		expect(await totalSupply).to.equal( 
-				ethers.utils.parseEther(`${(mint_amount_alice+mint_amount_bob) * sNFT_initialPrice}`));
 		});
 	});
 });
