@@ -5,11 +5,13 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./lib/ERC721.sol";
 import "./lib/ERC721Enumerable.sol";
 
 contract sNFT is ERC721Enumerable, Ownable {
     uint256 public maxSupply = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;  // Infinite Supply
-    
+    mapping(uint256 => bool) private _tokenActive;
+
     // Price
     uint256 public price;
     
@@ -17,7 +19,7 @@ contract sNFT is ERC721Enumerable, Ownable {
     string private _baseURIextended;
 
     // Amount of active sNFTs
-    uint256 public activeAmount;
+    uint256 public totalActive;
 
     constructor() ERC721("Staked NFT", "sNFT") {
         price = 50000000000000000;
@@ -34,9 +36,24 @@ contract sNFT is ERC721Enumerable, Ownable {
 
         for (uint32 i; i < count;) {
             _mint(_msgSender(), nextTokenId);
+            _tokenActive[nextTokenId] = true;
             unchecked { ++nextTokenId; ++i; }
-            activeAmount++;
+            totalActive++;
         }
+    }
+
+    function redeem(uint256 tokenId) public {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to redeem");
+        _tokenActive[tokenId] = false;
+
+        // Return money to token owner
+        uint256 payableAmount = price / 2;  // TO DO: Better calculation
+        (bool os,)=  ERC721.ownerOf(tokenId).call{value: payableAmount}("");
+        require(os);
+        --totalActive;
+
+        // New Price calculation
+        price = address(this).balance / totalActive;
     }
 
     function withdraw() external payable onlyOwner {
@@ -49,12 +66,17 @@ contract sNFT is ERC721Enumerable, Ownable {
         _burn(tokenId);
     }
 
-    function totalSupply() public view override returns (uint256) {
+    function totalFunded() public view returns (uint256) {
         return address(this).balance;
     }
 
     function actualPrice() public view returns (uint256) {
         return price;
+    }
+
+    function isActive(uint256 tokenId) public view returns (bool) {
+        require(_exists(tokenId), "Nonexistent token");
+        return _tokenActive[tokenId];
     }
 
     function setBaseURI(string memory baseURI_) external onlyOwner() {
