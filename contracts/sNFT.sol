@@ -40,6 +40,8 @@ contract sNFT is ERC721Enumerable, Ownable {
             unchecked { ++nextTokenId; ++i; }
             totalActive++;
         }
+
+        // Not necessary update price (it's the same)
     }
 
     function redeem(uint256 tokenId) public {
@@ -53,17 +55,29 @@ contract sNFT is ERC721Enumerable, Ownable {
         --totalActive;
 
         // New Price calculation
-        price = address(this).balance / totalActive;
+        updatePrice();
     }
 
+    function shareRevenue() external payable {
+        // New Price calculation
+        updatePrice();
+    }
+
+/*
     function withdraw() external payable onlyOwner {
         (bool os,)= payable(owner()).call{value: address(this).balance}("");
         require(os);
     }
 
+
     function burn(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to burn.");
         _burn(tokenId);
+    }
+*/
+
+    function updatePrice() internal {
+        price = address(this).balance / totalActive;
     }
 
     function totalFunded() public view returns (uint256) {
