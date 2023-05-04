@@ -21,8 +21,8 @@ contract sNFT is ERC721Enumerable, Ownable {
     // Amount of active sNFTs
     uint256 public totalActive;
 
-    constructor() ERC721("Staked NFT", "sNFT") {
-        price = 50000000000000000;
+    constructor(uint256 initialPrice) ERC721("Staked NFT", "sNFT") {
+        price = initialPrice;
     }
 
     function mint(uint32 count) external payable {

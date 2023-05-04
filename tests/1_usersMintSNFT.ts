@@ -3,6 +3,8 @@ import { ethers } from 'hardhat';
 import { Contract, utils  } from 'ethers';
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
+const snft_initial_price = 0.05;	// In ETH
+
 const mint_amount_alice = 1;
 const mint_amount_bob = 20;
 
@@ -20,7 +22,7 @@ describe(`1) Deploy sNFT contract and make simple interactions -- Mint`, () => {
 		});
 		it(`Should deploy the ERC20`, async () => {
 			let SNFT = await ethers.getContractFactory("sNFT");
-			sNFT = await SNFT.deploy();
+			sNFT = await SNFT.deploy(ethers.utils.parseEther(snft_initial_price.toString()));
 		});
 		it(`Should Alice Mint ${mint_amount_alice} sNFT`, async () => {
 			price = Number(ethers.utils.formatEther(await sNFT.actualPrice()));
