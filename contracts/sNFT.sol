@@ -10,10 +10,14 @@ import "./lib/ERC721Enumerable.sol";
 
 contract sNFT is ERC721Enumerable, Ownable {
     uint256 public maxSupply = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;  // Infinite Supply
+    uint8 public maxFactor = 100;
     mapping(uint256 => bool) private _tokenActive;
 
     // Price
     uint256 public price;
+
+    // Factor
+    uint8 public factor;
     
     // Base URI
     string private _baseURIextended;
@@ -21,8 +25,12 @@ contract sNFT is ERC721Enumerable, Ownable {
     // Amount of active sNFTs
     uint256 public totalActive;
 
-    constructor(uint256 initialPrice) ERC721("Staked NFT", "sNFT") {
+    constructor(uint256 initialPrice, uint8 initialFactor) ERC721("Staked NFT", "sNFT") {
+        unchecked {
+            require(initialFactor <= maxFactor, "Factor must be lower than maxFactor");
+        }
         price = initialPrice;
+        factor = initialFactor;
     }
 
     function mint(uint32 count) external payable {
@@ -41,15 +49,17 @@ contract sNFT is ERC721Enumerable, Ownable {
             totalActive++;
         }
 
-        // Not necessary update price (it's the same)
+        // Not necessary update price in mint (it's the same)
     }
 
     function redeem(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to redeem");
+        require(totalActive > 1, "Must be at least one sNFT active in the contract for safety");
+
         _tokenActive[tokenId] = false;
 
         // Return money to token owner
-        uint256 payableAmount = price / 2;  // TO DO: Better calculation
+        uint256 payableAmount = (price * factor) / maxFactor;
         (bool os,)=  ERC721.ownerOf(tokenId).call{value: payableAmount}("");
         require(os);
         --totalActive;
