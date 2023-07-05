@@ -10,7 +10,7 @@ import "./lib/ERC721Enumerable.sol";
 
 contract sNFT is ERC721Enumerable, Ownable {
     uint8 public maxFactor = 100;
-    mapping(uint256 => bool) private _tokenActive;
+    mapping(uint256 => bool) private isUnlocked;
 
     // Price
     uint256 public price;
@@ -24,8 +24,8 @@ contract sNFT is ERC721Enumerable, Ownable {
     // Base URI
     string private _baseURIextended;
 
-    // Amount of active sNFTs
-    uint256 public totalActive;
+    // Amount of unlocked sNFTs
+    uint256 public totalUnlocked;
 
     constructor(
         uint256 initialPrice, 
@@ -51,9 +51,9 @@ contract sNFT is ERC721Enumerable, Ownable {
 
         for (uint32 i; i < count;) {
             _mint(_msgSender(), nextTokenId);
-            _tokenActive[nextTokenId] = true;
+            isUnlocked[nextTokenId] = true;
             unchecked { ++nextTokenId; ++i; }
-            totalActive++;
+            totalUnlocked++;
         }
 
         // Not necessary update price in mint (it's the same)
@@ -61,16 +61,16 @@ contract sNFT is ERC721Enumerable, Ownable {
 
     function lock(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to lock");
-        require(_tokenActive[tokenId] == true, "This Asset is already locked");
-        require(totalActive > 1, "Must be at least one sNFT active in the contract for safety");
+        require(isUnlocked[tokenId] == true, "This Asset is already locked");
+        require(totalUnlocked > 1, "Must be at least one sNFT active in the contract for safety");
 
-        _tokenActive[tokenId] = false;
+        isUnlocked[tokenId] = false;
 
         // Return money to token owner
         uint256 payableAmount = (price * factor) / maxFactor;
         (bool os,)=  ERC721.ownerOf(tokenId).call{value: payableAmount}("");
         require(os);
-        --totalActive;
+        --totalUnlocked;
 
         // New Price calculation
         updatePrice();
@@ -78,10 +78,10 @@ contract sNFT is ERC721Enumerable, Ownable {
 
     function unlock(uint256 tokenId) external payable {
         require(msg.value >= price, "Insufficient funds!");
-        require(_tokenActive[tokenId] == false, "This Asset is already unlocked");
+        require(isUnlocked[tokenId] == false, "This Asset is already unlocked");
 
-        _tokenActive[tokenId] = true;
-        ++totalActive;
+        isUnlocked[tokenId] = true;
+        ++totalUnlocked;
 
         // Not necessary update price in unlock (it's the same)
     }
@@ -92,7 +92,7 @@ contract sNFT is ERC721Enumerable, Ownable {
     }
 
     function updatePrice() internal {
-        price = address(this).balance / totalActive;
+        price = address(this).balance / totalUnlocked;
     }
 
     function setMaxSupply(uint256 newMaxSupply) external onlyOwner() {
@@ -122,7 +122,7 @@ contract sNFT is ERC721Enumerable, Ownable {
 
     function isActive(uint256 tokenId) public view returns (bool) {
         require(_exists(tokenId), "Nonexistent token");
-        return _tokenActive[tokenId];
+        return isUnlocked[tokenId];
     }
 
     function setBaseURI(string memory baseURI_) external onlyOwner() {

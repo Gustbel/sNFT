@@ -34,12 +34,12 @@ describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Lock - 
 		it(`Should Alice Mint ${mint_amount_alice} sNFT`, async () => {
 			price_bn = await sNFT.actualPrice();
 			await sNFT.connect(alice).mint( mint_amount_alice, { value: price_bn.mul(mint_amount_alice) } );
-			expect(await sNFT.totalActive()).to.equal(mint_amount_alice);
+			expect(await sNFT.totalUnlocked()).to.equal(mint_amount_alice);
 		});
 		it(`Should BOB Mint ${mint_amount_bob} sNFT`, async () => {
 			price_bn = await sNFT.actualPrice();
 			await sNFT.connect(bob).mint( mint_amount_bob, { value: price_bn.mul(mint_amount_bob) } );
-			expect(await sNFT.totalActive()).to.equal(mint_amount_alice+mint_amount_bob);
+			expect(await sNFT.totalUnlocked()).to.equal(mint_amount_alice+mint_amount_bob);
 		});
 		it(`Should Bob Lock 1 of its sNFT`, async () => {
 			await sNFT.connect(bob).lock(3);
