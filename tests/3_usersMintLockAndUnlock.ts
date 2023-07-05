@@ -10,11 +10,10 @@ const factor = 50;
 
 const mint_amount_alice = 1;
 const mint_amount_bob = 20;
-const mint_amount_carol = 5;
 
-describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Redeem - Approve`, () => {
+describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Lock - Approve`, () => {
 	let owner: SignerWithAddress;
-	let alice: SignerWithAddress, bob: SignerWithAddress, carol: SignerWithAddress;
+	let alice: SignerWithAddress, bob: SignerWithAddress;
 
 	let sNFT: Contract;
 
@@ -22,7 +21,7 @@ describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Redeem 
 
 	describe(`General`, () => {
 		it(`Should init Signers`, async () => {
-			[owner, alice, bob, carol] = await ethers.getSigners();
+			[owner, alice, bob] = await ethers.getSigners();
 		});
 		it(`Should deploy the SNFT contract`, async () => {
 			let SNFT = await ethers.getContractFactory("sNFT");
@@ -42,24 +41,19 @@ describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Redeem 
 			await sNFT.connect(bob).mint( mint_amount_bob, { value: price_bn.mul(mint_amount_bob) } );
 			expect(await sNFT.totalActive()).to.equal(mint_amount_alice+mint_amount_bob);
 		});
-		it(`Should Bob Redeem 1 of its sNFT`, async () => {
-			await sNFT.connect(bob).redeem(3);
+		it(`Should Bob Lock 1 of its sNFT`, async () => {
+			await sNFT.connect(bob).lock(3);
 		});
-		it(`Should Bob cannot Redeem the same sNFT that was previously redeemed`, async () => {
-			await expect(sNFT.connect(bob).redeem(3)).to.be.revertedWith('This Asset is already locked');
+		it(`Should Bob cannot Lock the same sNFT that was previously locked`, async () => {
+			await expect(sNFT.connect(bob).lock(3)).to.be.revertedWith('This Asset is already locked');
 		});
-		it(`Should Carol Mint ${mint_amount_carol} sNFT`, async () => {
+		it(`Should Bob unlock the previously locked sNFT`, async () => {
 			price_bn = await sNFT.actualPrice();
-			await sNFT.connect(carol).mint( mint_amount_carol, { value: price_bn.mul(mint_amount_carol) } );
+			await sNFT.connect(bob).unlock(3, { value: price_bn } );
 		});
-
-		it(`Should Not Allow Alice Redeem 1 sNFT of Carol`, async () => {
-			await expect(sNFT.connect(alice).redeem(24)).to.be.revertedWith('Not approved to redeem');
-		});
-
-		it(`Should Allow Alice Redeem 1 sNFT of Carol (after approve)`, async () => {
-			await sNFT.connect(carol).approve(alice.address, 24);
-			await sNFT.connect(alice).redeem(24);
+		it(`Should Bob cannot unlock the same sNFT that was previously unlocked`, async () => {
+			price_bn = await sNFT.actualPrice();
+			await expect(sNFT.connect(bob).unlock(3, { value: price_bn } )).to.be.revertedWith('This Asset is already unlocked');
 		});
 	});
 
@@ -69,8 +63,7 @@ describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Redeem 
 		console.log(`Price: ${Number(ethers.utils.formatEther(await sNFT.actualPrice()))}`)
 		console.log(`Balance of users:\n` +
 					`\t Alice: ${ethers.utils.formatEther(await alice.getBalance())}` +
-					`\t Bob: ${ethers.utils.formatEther(await bob.getBalance())}` +
-					`\t Carol: ${ethers.utils.formatEther(await carol.getBalance())}`
+					`\t Bob: ${ethers.utils.formatEther(await bob.getBalance())}`
 				)
 		console.log(`\t Balance of contract: ${ethers.utils.formatEther(await ethers.provider.getBalance(sNFT.address))}`)
 	}

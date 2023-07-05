@@ -59,8 +59,8 @@ contract sNFT is ERC721Enumerable, Ownable {
         // Not necessary update price in mint (it's the same)
     }
 
-    function redeem(uint256 tokenId) public {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to redeem");
+    function lock(uint256 tokenId) public {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to lock");
         require(_tokenActive[tokenId] == true, "This Asset is already locked");
         require(totalActive > 1, "Must be at least one sNFT active in the contract for safety");
 
@@ -74,6 +74,16 @@ contract sNFT is ERC721Enumerable, Ownable {
 
         // New Price calculation
         updatePrice();
+    }
+
+    function unlock(uint256 tokenId) external payable {
+        require(msg.value >= price, "Insufficient funds!");
+        require(_tokenActive[tokenId] == false, "This Asset is already unlocked");
+
+        _tokenActive[tokenId] = true;
+        ++totalActive;
+
+        // Not necessary update price in unlock (it's the same)
     }
 
     function shareRevenue() external payable {
