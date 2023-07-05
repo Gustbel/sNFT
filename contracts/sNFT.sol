@@ -9,7 +9,6 @@ import "./lib/ERC721.sol";
 import "./lib/ERC721Enumerable.sol";
 
 contract sNFT is ERC721Enumerable, Ownable {
-    uint256 public maxSupply = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;  // Infinite Supply
     uint8 public maxFactor = 100;
     mapping(uint256 => bool) private _tokenActive;
 
@@ -18,6 +17,9 @@ contract sNFT is ERC721Enumerable, Ownable {
 
     // Factor
     uint8 public factor;
+
+    // Max Supply
+    uint256 public maxSupply;
     
     // Base URI
     string private _baseURIextended;
@@ -25,12 +27,17 @@ contract sNFT is ERC721Enumerable, Ownable {
     // Amount of active sNFTs
     uint256 public totalActive;
 
-    constructor(uint256 initialPrice, uint8 initialFactor) ERC721("Staked NFT", "sNFT") {
+    constructor(
+        uint256 initialPrice, 
+        uint8 initialFactor, 
+        uint256 initialMaxSupply
+    ) ERC721("Staked NFT", "sNFT") {
         unchecked {
             require(initialFactor <= maxFactor, "Factor must be lower than maxFactor");
         }
         price = initialPrice;
         factor = initialFactor;
+        maxSupply = initialMaxSupply;
     }
 
     function mint(uint32 count) external payable {

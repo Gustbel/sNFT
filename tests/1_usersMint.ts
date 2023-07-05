@@ -3,6 +3,8 @@ import { ethers } from 'hardhat';
 import { BigNumber, Contract, utils  } from 'ethers';
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
+const MAX_UINT256 = BigInt(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+
 const snft_initial_price = 0.05;	// In ETH
 const factor = 50;
 
@@ -24,7 +26,11 @@ describe(`1) Deploy sNFT contract and make simple interactions -- Mint`, () => {
 		});
 		it(`Should deploy the SNFT contract`, async () => {
 			let SNFT = await ethers.getContractFactory("sNFT");
-			sNFT = await SNFT.deploy(ethers.utils.parseEther(snft_initial_price.toString()), factor);
+			sNFT = await SNFT.deploy(
+				ethers.utils.parseEther(snft_initial_price.toString()), 
+				factor,
+				MAX_UINT256 
+			);
 		});
 		it(`Should Alice Mint ${mint_amount_alice} sNFT`, async () => {
 			price_bn = await sNFT.actualPrice();
