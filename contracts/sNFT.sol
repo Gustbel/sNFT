@@ -62,7 +62,7 @@ contract sNFT is ERC721Enumerable, Ownable {
     function lock(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to lock");
         require(isUnlocked[tokenId] == true, "This Asset is already locked");
-        require(totalUnlocked > 1, "Must be at least one sNFT active in the contract for safety");
+        require(totalUnlocked > 1, "Must be at least one sNFT unlocked in the contract for safety");
 
         isUnlocked[tokenId] = false;
 
@@ -120,7 +120,7 @@ contract sNFT is ERC721Enumerable, Ownable {
         return price;
     }
 
-    function isActive(uint256 tokenId) public view returns (bool) {
+    function isAssetUnlocked(uint256 tokenId) public view returns (bool) {
         require(_exists(tokenId), "Nonexistent token");
         return isUnlocked[tokenId];
     }
