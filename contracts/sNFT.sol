@@ -84,6 +84,11 @@ contract sNFT is ERC721Enumerable, Ownable {
         price = address(this).balance / totalActive;
     }
 
+    function setMaxSupply(uint256 newMaxSupply) external onlyOwner() {
+        require(maxSupply < newMaxSupply, "newMaxSupply cannot be lower than actual maxSupply");    // TODO: Maybe is better that newMaxSupply > Higher Token ID
+        maxSupply = newMaxSupply;
+    }
+
 /*
     function withdraw() external payable onlyOwner {
         (bool os,)= payable(owner()).call{value: address(this).balance}("");
