@@ -45,6 +45,9 @@ describe(`2) Deploy sNFT contract and make simple interactions -- Mint - Redeem 
 		it(`Should Bob Redeem 1 of its sNFT`, async () => {
 			await sNFT.connect(bob).redeem(3);
 		});
+		it(`Should Bob cannot Redeem the same sNFT that was previously redeemed`, async () => {
+			await expect(sNFT.connect(bob).redeem(3)).to.be.revertedWith('This Asset is already locked');
+		});
 		it(`Should Carol Mint ${mint_amount_carol} sNFT`, async () => {
 			price_bn = await sNFT.actualPrice();
 			await sNFT.connect(carol).mint( mint_amount_carol, { value: price_bn.mul(mint_amount_carol) } );

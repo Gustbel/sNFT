@@ -61,6 +61,7 @@ contract sNFT is ERC721Enumerable, Ownable {
 
     function redeem(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to redeem");
+        require(_tokenActive[tokenId] == true, "This Asset is already locked");
         require(totalActive > 1, "Must be at least one sNFT active in the contract for safety");
 
         _tokenActive[tokenId] = false;
