@@ -100,18 +100,6 @@ contract sNFT is ERC721Enumerable, Ownable {
         maxSupply = newMaxSupply;
     }
 
-/*
-    function withdraw() external payable onlyOwner {
-        (bool os,)= payable(owner()).call{value: address(this).balance}("");
-        require(os);
-    }
-
-    function burn(uint256 tokenId) public {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved to burn.");
-        _burn(tokenId);
-    }
-*/
-
     function totalFunded() public view returns (uint256) {
         return address(this).balance;
     }
